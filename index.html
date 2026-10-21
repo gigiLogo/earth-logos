@@ -100,7 +100,7 @@
 // ============ НАСТРОЙКИ (меняются владельцем) ============
 const CONFIG = {
   OWNER_EMAIL: 'igrotono@gmail.com',  // куда приходят заявки
-  SHEET_CSV: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRrQ19iJ8N9iRLJLlAkEx72DfGbD_awsX2TZhxVXF-Gi2r6Yd5am8b0-_D6KCnaLrXMsiSPejM8G_ll/pubhtml',     // ссылка на Google Таблицу, опубликованную как CSV. Пусто = демо-данные
+  SHEET_CSV: '',                       // ссылка на Google Таблицу, опубликованную как CSV. Пусто = демо-данные
   REFRESH_MS: 180000,                  // как часто перечитывать таблицу (3 минуты)
   VOLUME_STEP: 0                       // надбавка за каждую следующую клетку бренда: 0 = фиксированная цена
 };
@@ -519,6 +519,21 @@ const D = {
     demoNote:'Demo veriler: tablo henüz bağlı değil.', loadErr:'Veriler güncellenemedi. Son bilinen durum gösteriliyor.',
     statusNote:'Veriler otomatik güncellenir.'
   }
+};
+// тексты окна с заявкой (адрес и текст заявки для копирования)
+const MAILUI = {
+  en: { title:'Your request is ready', intro:'Send this request to the owner by email. Copy the address and the text, or open your mail app.', copy:'Copy', copied:'Copied', subject:'Subject and text', openMail:'Open mail app', done:'Done' },
+  ru: { title:'Заявка готова', intro:'Отправьте эту заявку владельцу по почте. Скопируйте адрес и текст или откройте почтовую программу.', copy:'Копировать', copied:'Скопировано', subject:'Тема и текст', openMail:'Открыть почту', done:'Готово' },
+  de: { title:'Ihre Anfrage ist fertig', intro:'Senden Sie diese Anfrage per E-Mail an den Betreiber. Kopieren Sie Adresse und Text oder öffnen Sie Ihr Mailprogramm.', copy:'Kopieren', copied:'Kopiert', subject:'Betreff und Text', openMail:'Mailprogramm öffnen', done:'Fertig' },
+  fr: { title:'Votre demande est prête', intro:'Envoyez cette demande au propriétaire par e-mail. Copiez l’adresse et le texte, ou ouvrez votre messagerie.', copy:'Copier', copied:'Copié', subject:'Objet et texte', openMail:'Ouvrir la messagerie', done:'Terminé' },
+  es: { title:'Tu solicitud está lista', intro:'Envía esta solicitud al propietario por email. Copia la dirección y el texto, o abre tu programa de correo.', copy:'Copiar', copied:'Copiado', subject:'Asunto y texto', openMail:'Abrir correo', done:'Listo' },
+  it: { title:'La tua richiesta è pronta', intro:'Invia questa richiesta al proprietario via email. Copia l’indirizzo e il testo oppure apri la posta.', copy:'Copia', copied:'Copiato', subject:'Oggetto e testo', openMail:'Apri posta', done:'Fatto' },
+  pt: { title:'O seu pedido está pronto', intro:'Envie este pedido ao proprietário por email. Copie o endereço e o texto ou abra o seu programa de correio.', copy:'Copiar', copied:'Copiado', subject:'Assunto e texto', openMail:'Abrir correio', done:'Concluído' },
+  zh: { title:'申请已准备好', intro:'请将此申请通过邮件发送给所有者。复制地址和内容，或打开邮件应用。', copy:'复制', copied:'已复制', subject:'主题和内容', openMail:'打开邮件', done:'完成' },
+  ja: { title:'申し込みの準備ができました', intro:'この申し込みをメールで運営者に送ってください。アドレスと本文をコピーするか、メールアプリを開いてください。', copy:'コピー', copied:'コピーしました', subject:'件名と本文', openMail:'メールアプリを開く', done:'完了' },
+  et: { title:'Taotlus on valmis', intro:'Saada see taotlus omanikule e-posti teel. Kopeeri aadress ja tekst või ava e-posti programm.', copy:'Kopeeri', copied:'Kopeeritud', subject:'Teema ja tekst', openMail:'Ava e-post', done:'Valmis' },
+  uk: { title:'Заявка готова', intro:'Надішліть цю заявку власнику листом. Скопіюйте адресу та текст або відкрийте поштову програму.', copy:'Копіювати', copied:'Скопійовано', subject:'Тема і текст', openMail:'Відкрити пошту', done:'Готово' },
+  tr: { title:'Talebiniz hazır', intro:'Bu talebi site sahibine e-posta ile gönderin. Adresi ve metni kopyalayın veya posta uygulamanızı açın.', copy:'Kopyala', copied:'Kopyalandı', subject:'Konu ve metin', openMail:'Postayı aç', done:'Tamam' }
 };
 let lang = localStorage.getItem('lang') || 'en';
 const t = k => (D[lang] && D[lang][k] !== undefined) ? D[lang][k] : (D.en[k] !== undefined ? D.en[k] : k);
@@ -1011,9 +1026,26 @@ function openRequest() {
       `Cells:`, ...lines, `Total: ${money(q.total)}`, comment ? `Comment: ${comment}` : ''
     ].filter(Boolean).join('\n');
     const subject = `Placement request: ${brand}`;
-    window.location.href = `mailto:${CONFIG.OWNER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    closeModal();
-    toast(t('reqSent'));
+    const mailto = `mailto:${CONFIG.OWNER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const u = MAILUI[lang] || MAILUI.en;
+    // Показываем адрес и текст заявки: работает без настроенной почтовой программы
+    openModal(`<h3>${u.title}</h3>
+      <p>${u.intro}</p>
+      <div class="row"><b>${CONFIG.OWNER_EMAIL}</b><button id="mcopy">${u.copy}</button></div>
+      <div class="row"><span class="muted">${u.subject}</span><button id="mcopy2">${u.copy}</button></div>
+      <textarea id="mtext" readonly style="min-height:160px">${subject}\n\n${body}</textarea>
+      <div class="row" style="justify-content:flex-end;gap:8px;margin-top:12px">
+        <a href="${mailto}" style="color:#7fb2e8">${u.openMail}</a>
+        <button class="primary" id="mdone">${u.done}</button>
+      </div>`);
+    const flash = (btn) => { const old = btn.textContent; btn.textContent = u.copied; setTimeout(() => btn.textContent = old, 1500); };
+    const copy = (text, btn) => {
+      const fallback = () => { const ta = document.getElementById('mtext'); ta.select(); document.execCommand('copy'); flash(btn); };
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => flash(btn), fallback); else fallback();
+    };
+    document.getElementById('mcopy').onclick = e => copy(CONFIG.OWNER_EMAIL, e.target);
+    document.getElementById('mcopy2').onclick = e => copy(document.getElementById('mtext').value, e.target);
+    document.getElementById('mdone').onclick = () => { closeModal(); selected.clear(); renderSide(); scheduleTexture(); toast(t('reqSent')); };
   };
 }
 
