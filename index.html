@@ -102,7 +102,8 @@ const CONFIG = {
   OWNER_EMAIL: 'igrotono@gmail.com',  // куда приходят заявки
   SHEET_CSV: '',                       // ссылка на Google Таблицу, опубликованную как CSV. Пусто = демо-данные
   REFRESH_MS: 180000,                  // как часто перечитывать таблицу (3 минуты)
-  VOLUME_STEP: 0                       // надбавка за каждую следующую клетку бренда: 0 = фиксированная цена
+  VOLUME_STEP: 0,                      // надбавка за каждую следующую клетку бренда: 0 = фиксированная цена
+  DEMO: false                          // true = показывать выдуманные демо-бренды (только для тестов)
 };
 
 // ============ языки и тексты ============
@@ -740,8 +741,9 @@ function setStatus(msg) { document.getElementById('status').textContent = msg ||
 
 async function loadSheet() {
   if (!CONFIG.SHEET_CSV) {
-    if (!Object.keys(cells).length) cells = demoCells();
-    setStatus(t('demoNote'));
+    // демо-бренды только при DEMO: true; в боевом режиме карта пустая
+    if (CONFIG.DEMO) cells = demoCells(); else cells = {};
+    setStatus(CONFIG.DEMO ? t('demoNote') : t('statusNote'));
   } else {
     try {
       const sep = CONFIG.SHEET_CSV.includes('?') ? '&' : '?';
