@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="240" viewBox="0 0 800 240">
+  <defs>
+    <radialGradient id="sea" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#3f7fc4"/>
+      <stop offset="100%" stop-color="#0c2a47"/>
+    </radialGradient>
+    <clipPath id="globeClip">
+      <circle cx="120" cy="120" r="100"/>
+    </clipPath>
+  </defs>
+
+  <!-- фон (прозрачный) -->
+
+  <!-- глобус -->
+  <circle cx="120" cy="120" r="100" fill="url(#sea)"/>
+  <g clip-path="url(#globeClip)">
+    <!-- суша: упрощённые континенты -->
+    <path fill="#243f58" d="M60 70 C90 50 130 55 150 75 C165 90 150 110 135 115 C120 125 105 140 95 160 C85 175 70 170 62 150 C52 125 40 95 60 70 Z"/>
+    <path fill="#243f58" d="M165 130 C185 120 215 125 225 145 C232 165 215 185 195 190 C180 192 168 175 163 160 C158 145 155 137 165 130 Z"/>
+    <path fill="#243f58" d="M205 60 C230 50 260 60 265 80 C262 98 240 105 225 100 C210 95 200 75 205 60 Z"/>
+    <!-- сетка клеток -->
+    <g stroke="#ffffff" stroke-opacity="0.25" stroke-width="1" fill="none">
+      <path d="M20 60 H220 M20 100 H220 M20 140 H220 M20 180 H220"/>
+      <path d="M60 20 V220 M100 20 V220 M140 20 V220 M180 20 V220"/>
+    </g>
+    <!-- занятые участки бренда -->
+    <rect x="100" y="100" width="40" height="40" fill="#ef476f" fill-opacity="0.9"/>
+    <rect x="140" y="100" width="40" height="40" fill="#ef476f" fill-opacity="0.9"/>
+    <rect x="140" y="60" width="40" height="40" fill="#06d6a0" fill-opacity="0.9"/>
+    <rect x="60" y="140" width="40" height="40" fill="#ffd166" fill-opacity="0.9"/>
+    <!-- свободный участок -->
+    <rect x="180" y="140" width="40" height="40" fill="none" stroke="#ffd166" stroke-width="2" stroke-dasharray="6 4"/>
+  </g>
+  <circle cx="120" cy="120" r="100" fill="none" stroke="#7fb2e8" stroke-width="3"/>
+
+  <!-- надпись -->
+  <text x="250" y="110" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="58" font-weight="700" fill="#e6edf7">Earth of Logos</text>
+  <text x="252" y="158" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="26" font-weight="400" fill="#7fb2e8">Place your brand on the map of the world</text>
+  <rect x="252" y="180" width="180" height="6" rx="3" fill="#ffd166"/>
+</svg>
